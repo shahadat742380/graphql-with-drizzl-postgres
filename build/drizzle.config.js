@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    schema: './src/schemas',
+    schema: './src/db/schemas',
     out: './drizzle',
     dialect: 'postgresql',
     dbCredentials: {

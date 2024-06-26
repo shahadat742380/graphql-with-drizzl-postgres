@@ -31,57 +31,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_postgres_1 = require("drizzle-orm/node-postgres");
-const pg_1 = require("pg");
+const drizzle_graphql_1 = require("drizzle-graphql");
 const server_1 = require("@apollo/server");
 const standalone_1 = require("@apollo/server/standalone");
-const dbSchema = __importStar(require("./schemas/index.js"));
-const schema_1 = require("@graphql-tools/schema");
-const graphql_tag_1 = require("graphql-tag");
-// Initialize the PostgreSQL client
-const client = new pg_1.Client({
-    connectionString: "postgresql://postgres:742380@localhost:5432/drizzle-with-postgres?schema=public",
-    ssl: false, // Disable SSL
-});
+// Import schema
+const dbSchema = __importStar(require("./db/schemas/index.js"));
+const index_js_1 = __importDefault(require("./db/index.js"));
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
     const PORT = Number(process.env.PORT) || 5000;
     try {
-        yield client.connect();
+        yield index_js_1.default.connect();
         // Initialize Drizzle-ORM with schema
-        const db = (0, node_postgres_1.drizzle)(client, { schema: dbSchema });
-        // Define GraphQL schema
-        const typeDefs = (0, graphql_tag_1.gql) `
-      type User {
-        id: Int!
-        name: String!
-      }
-
-      type Query {
-        users: [User!]!
-      }
-
-      type Mutation {
-        createUser(name: String!): User!
-      }
-    `;
-        // Define resolvers
-        const resolvers = {
-            Query: {
-                users: () => __awaiter(void 0, void 0, void 0, function* () {
-                    return yield dbSchema.users.findMany();
-                }),
-            },
-            Mutation: {
-                createUser: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { name }) {
-                    const [newUser] = yield dbSchema.users.insert({ name }).returning('*');
-                    return newUser;
-                }),
-            },
-        };
-        // Build the executable schema
-        const schema = (0, schema_1.makeExecutableSchema)({ typeDefs, resolvers });
-        // Create and start Apollo Server
+        const graphqlDb = (0, node_postgres_1.drizzle)(index_js_1.default, { schema: dbSchema });
+        const { schema } = (0, drizzle_graphql_1.buildSchema)(graphqlDb);
         const server = new server_1.ApolloServer({ schema });
         const { url } = yield (0, standalone_1.startStandaloneServer)(server, {
             listen: { port: PORT },
@@ -92,7 +59,7 @@ const init = () => __awaiter(void 0, void 0, void 0, function* () {
         console.error("Failed to connect to the database", error);
     }
     finally {
-        yield client.end();
+        yield index_js_1.default.end();
     }
 });
 init();
