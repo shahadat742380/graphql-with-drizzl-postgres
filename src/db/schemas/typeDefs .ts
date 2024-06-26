@@ -5,12 +5,14 @@ export const typeDefs = `#graphql
   }
 
   type Query {
-  getAllUsers: [User]!
+    getAllUsers: [User]!
     getUser(id: Int!): User
     
   }
 
   type Mutation {
     createUser(name: String!): User
+     updateUser(id: Int!, name: String!): User
+    deleteUser(id: Int!): Boolean
   }
 `;

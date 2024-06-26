@@ -23,12 +23,29 @@ exports.resolvers = {
                 .from(index_js_1.users)
                 .where("id", "=", parseInt(id, 10))
                 .execute();
+            console.log("run the mutation");
             return result[0];
         }),
     },
     Mutation: {
         createUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { name }, { db }) {
             const result = yield db.insert(index_js_1.users).values({ name });
+            console.log("run the mutation");
+            return result;
+        }),
+        updateUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id, name }, { db }) {
+            const result = yield db
+                .update(index_js_1.users)
+                .set({ name })
+                .where("id", "=", parseInt(id, 10))
+                .execute();
+            return result;
+        }),
+        deleteUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id }, { db }) {
+            const result = yield db
+                .delete(index_js_1.users)
+                .where("id", "=", parseInt(id, 10))
+                .execute();
             return result;
         }),
     },
