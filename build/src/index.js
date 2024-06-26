@@ -36,20 +36,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_postgres_1 = require("drizzle-orm/node-postgres");
-const drizzle_graphql_1 = require("drizzle-graphql");
 const server_1 = require("@apollo/server");
 const standalone_1 = require("@apollo/server/standalone");
 // Import schema
 const dbSchema = __importStar(require("./db/schemas/index.js"));
 const index_js_1 = __importDefault(require("./db/index.js"));
+const typeDefs__js_1 = require("./db/schemas/typeDefs .js");
+const resolvers_js_1 = require("./db/schemas/resolvers.js");
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
     const PORT = Number(process.env.PORT) || 5000;
     try {
         yield index_js_1.default.connect();
         // Initialize Drizzle-ORM with schema
         const graphqlDb = (0, node_postgres_1.drizzle)(index_js_1.default, { schema: dbSchema });
-        const { schema } = (0, drizzle_graphql_1.buildSchema)(graphqlDb);
-        const server = new server_1.ApolloServer({ schema });
+        const server = new server_1.ApolloServer({
+            typeDefs: typeDefs__js_1.typeDefs,
+            resolvers: resolvers_js_1.resolvers,
+            // @ts-ignore
+            context: () => ({ db: graphqlDb }),
+        });
+        // const schema = buildSchema(graphqlDb);
+        // const server = new ApolloServer( schema );
+        // @ts-ignore
         const { url } = yield (0, standalone_1.startStandaloneServer)(server, {
             listen: { port: PORT },
         });
