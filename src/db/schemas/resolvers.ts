@@ -27,6 +27,7 @@ export const resolvers = {
       console.log("run the mutation")
       return result;
     },
+
     updateUser: async (
         _: any,
         { id, name }: { id: string; name: string },
@@ -39,6 +40,7 @@ export const resolvers = {
           .execute();
         return result;
       },
+
       deleteUser: async (
         _: any,
         { id }: { id: string },

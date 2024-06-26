@@ -28,6 +28,7 @@ const init = async () => {
 
     // const schema = buildSchema(graphqlDb);
     // const server = new ApolloServer( schema );
+    
     // @ts-ignore
     const { url } = await startStandaloneServer(server, {
       listen: { port: PORT },
