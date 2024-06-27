@@ -3,9 +3,9 @@ import { Users } from "../schemas/index.js";
 
 export const resolvers = {
   Query: {
-    getAllUsers: async (_: any, __: any) => {
+    getAllUsers: async (_: any, { limit }: {limit: number}) => {
       try {
-        const results = await graphqlDb.select().from(Users).execute();
+        const results = await graphqlDb.select().from(Users).limit(limit).execute();
         return results;
       } catch (err) {
         console.log(err);

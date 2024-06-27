@@ -28,7 +28,6 @@ const pg_1 = require("pg");
 const node_postgres_1 = require("drizzle-orm/node-postgres");
 const dbSchema = __importStar(require("../index.js"));
 // import * as dbSchema from "./db/schemas/index.js";
-console.log(dbSchema);
 const db = new pg_1.Client({
     connectionString: "postgresql://postgres:742380@localhost:5432/drizzle-with-postgres?schema=public",
 });

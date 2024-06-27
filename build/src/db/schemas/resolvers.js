@@ -14,9 +14,9 @@ const index_js_1 = require("../index.js");
 const index_js_2 = require("../schemas/index.js");
 exports.resolvers = {
     Query: {
-        getAllUsers: (_, __) => __awaiter(void 0, void 0, void 0, function* () {
+        getAllUsers: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { limit }) {
             try {
-                const results = yield index_js_1.graphqlDb.select().from(index_js_2.Users).execute();
+                const results = yield index_js_1.graphqlDb.select().from(index_js_2.Users).limit(limit).execute();
                 return results;
             }
             catch (err) {

@@ -8,16 +8,16 @@ exports.typeDefs = `#graphql
     last_name: String!
     email: String!
   }
-  
-
-  type Query {
-    getAllUsers: [User]!
-  }
 
   input UserInput {
     first_name: String!
     last_name: String!
     email: String!
+  }
+  
+
+  type Query {
+    getAllUsers(limit: Int): [User]!
   }
 
   type Mutation {
