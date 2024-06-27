@@ -1,56 +1,30 @@
-import { users } from "../schemas/index.js";
+import { graphqlDb } from "../index.js";
+import { Users } from "../schemas/index.js";
 
 export const resolvers = {
   Query: {
-    getAllUsers: async (_: any, __: any, { db }: { db: any }) => {
-      const results = await db.select().from(users).execute();
-      return results;
-    },
-    getUser: async (_: any, { id }: { id: string }, { db }: { db: any }) => {
-      const result = await db
-        .select()
-        .from(users)
-        .where("id", "=", parseInt(id, 10))
-        .execute();
-
-        console.log("run the mutation")
-      return result[0];
+    getAllUsers: async (_: any, __: any) => {
+      try {
+        const results = await graphqlDb.select().from(Users).execute();
+        return results;
+      } catch (err) {
+        console.log(err);
+      }
     },
   },
   Mutation: {
-    createUser: async (
-      _: any,
-      { name }: { name: string },
-      { db }: { db: any }
-    ) => {
-      const result = await db.insert(users).values({ name });
-      console.log("run the mutation")
-      return result;
+    createUser: async (_: any, { userInput }: { userInput: { first_name: string; last_name: string; email: string } }) => {
+      try {
+        const { first_name, last_name, email } = userInput;
+        const [result] = await graphqlDb
+          .insert(Users)
+          .values({ first_name, last_name, email })
+          .returning();
+        console.log([result]);
+        return result;
+      } catch (error) {
+        console.log(error);
+      }
     },
-
-    updateUser: async (
-        _: any,
-        { id, name }: { id: string; name: string },
-        { db }: { db: any }
-      ) => {
-        const result = await db
-          .update(users)
-          .set({ name })
-          .where("id", "=", parseInt(id, 10))
-          .execute();
-        return result;
-      },
-
-      deleteUser: async (
-        _: any,
-        { id }: { id: string },
-        { db }: { db: any }
-      ) => {
-        const result = await db
-          .delete(users)
-          .where("id", "=", parseInt(id, 10))
-          .execute();
-        return result;
-      },
   },
 };

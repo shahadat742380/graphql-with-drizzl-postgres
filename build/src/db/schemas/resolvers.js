@@ -10,43 +10,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-const index_js_1 = require("../schemas/index.js");
+const index_js_1 = require("../index.js");
+const index_js_2 = require("../schemas/index.js");
 exports.resolvers = {
     Query: {
-        getAllUsers: (_1, __1, _a) => __awaiter(void 0, [_1, __1, _a], void 0, function* (_, __, { db }) {
-            const results = yield db.select().from(index_js_1.users).execute();
-            return results;
-        }),
-        getUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id }, { db }) {
-            const result = yield db
-                .select()
-                .from(index_js_1.users)
-                .where("id", "=", parseInt(id, 10))
-                .execute();
-            console.log("run the mutation");
-            return result[0];
+        getAllUsers: (_, __) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                const results = yield index_js_1.graphqlDb.select().from(index_js_2.Users).execute();
+                return results;
+            }
+            catch (err) {
+                console.log(err);
+            }
         }),
     },
     Mutation: {
-        createUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { name }, { db }) {
-            const result = yield db.insert(index_js_1.users).values({ name });
-            console.log("run the mutation");
-            return result;
-        }),
-        updateUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id, name }, { db }) {
-            const result = yield db
-                .update(index_js_1.users)
-                .set({ name })
-                .where("id", "=", parseInt(id, 10))
-                .execute();
-            return result;
-        }),
-        deleteUser: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id }, { db }) {
-            const result = yield db
-                .delete(index_js_1.users)
-                .where("id", "=", parseInt(id, 10))
-                .execute();
-            return result;
+        createUser: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { userInput }) {
+            try {
+                const { first_name, last_name, email } = userInput;
+                const [result] = yield index_js_1.graphqlDb
+                    .insert(index_js_2.Users)
+                    .values({ first_name, last_name, email })
+                    .returning();
+                console.log([result]);
+                return result;
+            }
+            catch (error) {
+                console.log(error);
+            }
         }),
     },
 };

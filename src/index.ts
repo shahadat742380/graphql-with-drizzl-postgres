@@ -1,5 +1,4 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { buildSchema } from "drizzle-graphql";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
@@ -36,9 +35,11 @@ const init = async () => {
     console.log(`🚀 Server ready at ${url}`);
   } catch (error) {
     console.error("Failed to connect to the database", error);
-  } finally {
-    await db.end();
-  }
+  } 
+  
+  // finally {
+  //   await db.end();
+  // }
 };
 
 init();

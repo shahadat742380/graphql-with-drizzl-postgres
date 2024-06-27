@@ -1,8 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.users = void 0;
+exports.Users = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
-exports.users = (0, pg_core_1.pgTable)('users', {
+const drizzle_orm_1 = require("drizzle-orm");
+exports.Users = (0, pg_core_1.pgTable)('users', {
     id: (0, pg_core_1.serial)('id').primaryKey(),
-    name: (0, pg_core_1.text)('name').notNull(),
+    first_name: (0, pg_core_1.text)("first_name").default(""),
+    last_name: (0, pg_core_1.text)("lat_name").default(""),
+    email: (0, pg_core_1.text)("email").default(""),
+    createdAt: (0, pg_core_1.text)("created_at").default((0, drizzle_orm_1.sql) `CURRENT_TIME`),
+    updatedAt: (0, pg_core_1.text)("updated_at").default((0, drizzle_orm_1.sql) `CURRENT_TIME`),
 });

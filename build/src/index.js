@@ -66,8 +66,8 @@ const init = () => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         console.error("Failed to connect to the database", error);
     }
-    finally {
-        yield index_js_1.default.end();
-    }
+    // finally {
+    //   await db.end();
+    // }
 });
 init();
