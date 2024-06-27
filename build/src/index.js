@@ -41,8 +41,8 @@ const standalone_1 = require("@apollo/server/standalone");
 // Import schema
 const dbSchema = __importStar(require("./db/schemas/index.js"));
 const index_js_1 = __importDefault(require("./db/index.js"));
-const typeDefs__js_1 = require("./db/schemas/typeDefs .js");
-const resolvers_js_1 = require("./db/schemas/resolvers.js");
+const typeDefs__js_1 = require("./graphql/typeDefs .js");
+const resolvers_js_1 = require("./graphql/resolvers.js");
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
     const PORT = Number(process.env.PORT) || 5000;
     try {
