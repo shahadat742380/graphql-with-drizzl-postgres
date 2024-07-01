@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.typeDefs = void 0;
-exports.typeDefs = `#graphql
+export const typeDefs = `#graphql
   type User {
     id: Int
     first_name: String!
@@ -41,13 +38,34 @@ exports.typeDefs = `#graphql
     title: String
     year: String
   }
-  
+
+  type getAllTodo {
+    userId: Int,
+    id: Int!,
+    title: String!,
+    completed: Boolean
+    toUser: TodoUser
+  }
+
+  type TodoUser {
+    id: Int!
+    name: String!
+    username: String
+    email : String!
+    phone: String
+    website: String
+  }
 
   type Query {
     getAllUsers(limit: Int): [User]!
     getUserById(id: Int!): User
     getAllBooks(limit: Int): [Book]
     getBookById(id: Int!): Book
+
+    getTodo: [getAllTodo]
+    getAllTodoUser: [TodoUser]
+    getTodoUserById(id: Int!): TodoUser
+
   }
 
   type Mutation {

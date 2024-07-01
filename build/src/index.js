@@ -41,7 +41,7 @@ const standalone_1 = require("@apollo/server/standalone");
 // Import schema
 const dbSchema = __importStar(require("./db/schemas/index.js"));
 const index_js_1 = __importDefault(require("./db/index.js"));
-const typeDefs__js_1 = require("./graphql/typeDefs .js");
+const typeDefs_js_1 = require("./graphql/typeDefs.js");
 const resolvers_js_1 = require("./graphql/resolvers.js");
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
     const PORT = Number(process.env.PORT) || 5000;
@@ -50,14 +50,11 @@ const init = () => __awaiter(void 0, void 0, void 0, function* () {
         // Initialize Drizzle-ORM with schema
         const graphqlDb = (0, node_postgres_1.drizzle)(index_js_1.default, { schema: dbSchema });
         const server = new server_1.ApolloServer({
-            typeDefs: typeDefs__js_1.typeDefs,
+            typeDefs: typeDefs_js_1.typeDefs,
             resolvers: resolvers_js_1.resolvers,
             // @ts-ignore
             context: () => ({ db: graphqlDb }),
         });
-        // const schema = buildSchema(graphqlDb);
-        // const server = new ApolloServer( schema );
-        // @ts-ignore
         const { url } = yield (0, standalone_1.startStandaloneServer)(server, {
             listen: { port: PORT },
         });
@@ -66,8 +63,5 @@ const init = () => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         console.error("Failed to connect to the database", error);
     }
-    // finally {
-    //   await db.end();
-    // }
 });
 init();

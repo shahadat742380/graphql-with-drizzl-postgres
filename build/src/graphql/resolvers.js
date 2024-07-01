@@ -8,12 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
+const axios_1 = __importDefault(require("axios"));
 const index_js_1 = require("../db/index.js");
 const index_js_2 = require("../db/schemas/index.js");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.resolvers = {
+    getAllTodo: {
+        toUser: (todo) => __awaiter(void 0, void 0, void 0, function* () { return (yield axios_1.default.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data; }),
+    },
     Query: {
         getAllUsers: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { limit }) {
             try {
@@ -58,6 +65,10 @@ exports.resolvers = {
                 .execute();
             return result;
         }),
+        // Todo
+        getTodo: () => __awaiter(void 0, void 0, void 0, function* () { return (yield axios_1.default.get("https://jsonplaceholder.typicode.com/todos")).data; }),
+        getAllTodoUser: () => __awaiter(void 0, void 0, void 0, function* () { return (yield axios_1.default.get("https://jsonplaceholder.typicode.com/users")).data; }),
+        getTodoUserById: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { id }) { return (yield axios_1.default.get(`https://jsonplaceholder.typicode.com/users/${id}`)).data; }),
     },
     Mutation: {
         createUser: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { userInput, }) {

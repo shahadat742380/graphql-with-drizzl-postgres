@@ -6,7 +6,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import * as dbSchema from "./db/schemas/index.js";
 import db from "./db/index.js";
 
-import { typeDefs } from "./graphql/typeDefs .js";
+import { typeDefs } from "./graphql/typeDefs.js";
 import { resolvers } from "./graphql/resolvers.js";
 
 const init = async () => {
@@ -25,10 +25,7 @@ const init = async () => {
       context: () => ({ db: graphqlDb }),
     });
 
-    // const schema = buildSchema(graphqlDb);
-    // const server = new ApolloServer( schema );
-
-    // @ts-ignore
+  
     const { url } = await startStandaloneServer(server, {
       listen: { port: PORT },
     });
@@ -37,9 +34,7 @@ const init = async () => {
     console.error("Failed to connect to the database", error);
   }
 
-  // finally {
-  //   await db.end();
-  // }
+ 
 };
 
 init();

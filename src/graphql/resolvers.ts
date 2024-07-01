@@ -1,8 +1,32 @@
+import axios from "axios";
 import { graphqlDb } from "../db/index.js";
 import { Users, Books } from "../db/schemas/index.js";
 import { eq } from "drizzle-orm";
 
+
+export interface Todo {
+  userId: number;
+  id: number;
+  title: string;
+  completed: boolean;
+  todoUser?: TodoUser;
+}
+
+export interface TodoUser {
+  id: number;
+  name: string;
+  username?: string;
+  email: string;
+  phone?: string;
+  website?: string;
+}
+
 export const resolvers = {
+  getAllTodo: {
+    toUser: async (todo: Todo) => 
+      (await axios.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data,
+         
+  },
   Query: {
     getAllUsers: async (_: any, { limit }: { limit: number }) => {
       try {
@@ -45,6 +69,18 @@ export const resolvers = {
         .execute();
       return result;
     },
+
+    // Todo
+
+    getTodo: async () =>
+      (await axios.get("https://jsonplaceholder.typicode.com/todos")).data,
+
+    getAllTodoUser: async () =>
+      (await axios.get("https://jsonplaceholder.typicode.com/users")).data,
+
+    getTodoUserById: async (_: any, {id} : {id:string}) =>
+      (await axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)).data,
+
   },
 
   Mutation: {
@@ -149,7 +185,7 @@ export const resolvers = {
         .where(eq(Books.id, id))
         .returning();
 
-        return result;
+      return result;
     },
   },
 };
