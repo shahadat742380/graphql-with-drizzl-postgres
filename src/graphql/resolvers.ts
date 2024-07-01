@@ -27,6 +27,11 @@ export const resolvers = {
       (await axios.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data,
   },
   Query: {
+    getToken: async (_: any, dataObject: any, context: any) => {
+      console.log("Token in resolver:", context.token); // Debugging line
+      return "get the token";
+    },
+
     getAllUsers: async (_: any, { offset, limit, first_name }: { offset: number; limit: number; first_name?: string }) => {
       try {
         const query = graphqlDb

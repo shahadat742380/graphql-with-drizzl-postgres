@@ -21,20 +21,24 @@ const init = async () => {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      // @ts-ignore
-      context: () => ({ db: graphqlDb }),
     });
 
-  
     const { url } = await startStandaloneServer(server, {
       listen: { port: PORT },
+      context: async ({ req, res }) => {
+        // Get the user token from the headers.
+        const token = req.headers.authorization || 'token';
+
+        // Add the token and db to the context
+        return { db: graphqlDb, token };
+      },
     });
     console.log(`🚀 Server ready at ${url}`);
   } catch (error) {
     console.error("Failed to connect to the database", error);
   }
 
- 
+  
 };
 
 init();

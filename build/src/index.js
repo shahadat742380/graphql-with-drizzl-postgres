@@ -52,11 +52,15 @@ const init = () => __awaiter(void 0, void 0, void 0, function* () {
         const server = new server_1.ApolloServer({
             typeDefs: typeDefs_js_1.typeDefs,
             resolvers: resolvers_js_1.resolvers,
-            // @ts-ignore
-            context: () => ({ db: graphqlDb }),
         });
         const { url } = yield (0, standalone_1.startStandaloneServer)(server, {
             listen: { port: PORT },
+            context: (_a) => __awaiter(void 0, [_a], void 0, function* ({ req, res }) {
+                // Get the user token from the headers.
+                const token = req.headers.authorization || 'token';
+                // Add the token and db to the context
+                return { db: graphqlDb, token };
+            }),
         });
         console.log(`🚀 Server ready at ${url}`);
     }

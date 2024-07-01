@@ -68,6 +68,8 @@ exports.typeDefs = `#graphql
     getTodo: [getAllTodo]
     getAllTodoUser: [TodoUser]
     getTodoUserById(id: Int!): TodoUser
+
+    getToken: String!
   }
 
   type Mutation {

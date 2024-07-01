@@ -22,6 +22,10 @@ exports.resolvers = {
         toUser: (todo) => __awaiter(void 0, void 0, void 0, function* () { return (yield axios_1.default.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data; }),
     },
     Query: {
+        getToken: (_, dataObject, context) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log("Token in resolver:", context.token); // Debugging line
+            return "get the token";
+        }),
         getAllUsers: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { offset, limit, first_name }) {
             try {
                 const query = index_js_1.graphqlDb
