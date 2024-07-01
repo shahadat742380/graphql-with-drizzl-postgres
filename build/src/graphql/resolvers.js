@@ -22,13 +22,17 @@ exports.resolvers = {
         toUser: (todo) => __awaiter(void 0, void 0, void 0, function* () { return (yield axios_1.default.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data; }),
     },
     Query: {
-        getAllUsers: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { limit }) {
+        getAllUsers: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { offset, limit, first_name }) {
             try {
-                const results = yield index_js_1.graphqlDb
+                const query = index_js_1.graphqlDb
                     .select()
                     .from(index_js_2.Users)
-                    .limit(limit)
-                    .execute();
+                    .offset(offset)
+                    .limit(limit);
+                if (first_name) {
+                    query.where((0, drizzle_orm_1.ilike)(index_js_2.Users.first_name, `%${first_name}%`));
+                }
+                const results = yield query.execute();
                 return results;
             }
             catch (err) {

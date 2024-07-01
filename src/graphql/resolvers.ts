@@ -1,7 +1,7 @@
 import axios from "axios";
 import { graphqlDb } from "../db/index.js";
 import { Users, Books } from "../db/schemas/index.js";
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 
 
 export interface Todo {
@@ -25,16 +25,21 @@ export const resolvers = {
   getAllTodo: {
     toUser: async (todo: Todo) => 
       (await axios.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data,
-         
   },
   Query: {
-    getAllUsers: async (_: any, { limit }: { limit: number }) => {
+    getAllUsers: async (_: any, { offset, limit, first_name }: { offset: number; limit: number; first_name?: string }) => {
       try {
-        const results = await graphqlDb
+        const query = graphqlDb
           .select()
           .from(Users)
-          .limit(limit)
-          .execute();
+          .offset(offset)
+          .limit(limit);
+        
+        if (first_name) {
+          query.where(ilike(Users.first_name, `%${first_name}%`));
+        }
+        
+        const results = await query.execute();
         return results;
       } catch (err) {
         console.log(err);

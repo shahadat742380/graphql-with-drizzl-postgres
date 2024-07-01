@@ -57,7 +57,7 @@ export const typeDefs = `#graphql
   }
 
   type Query {
-    getAllUsers(limit: Int): [User]!
+    getAllUsers(offset:Int limit: Int first_name: String): [User]!
     getUserById(id: Int!): User
     getAllBooks(limit: Int): [Book]
     getBookById(id: Int!): Book
@@ -65,7 +65,6 @@ export const typeDefs = `#graphql
     getTodo: [getAllTodo]
     getAllTodoUser: [TodoUser]
     getTodoUserById(id: Int!): TodoUser
-
   }
 
   type Mutation {

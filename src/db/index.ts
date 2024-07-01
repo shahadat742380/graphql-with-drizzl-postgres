@@ -2,7 +2,6 @@ import { Client } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 import * as dbSchema from "../index.js";
-// import * as dbSchema from "./db/schemas/index.js";
 
 const db = new Client({
   connectionString:
