@@ -1,9 +1,13 @@
 import axios from "axios";
-import { graphqlDb } from "../db/index.js";
 import { Users, Books } from "../db/schemas/index.js";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { NodePgDatabase } from "drizzle-orm/node-postgres/driver.js";
 
-export interface Todo {
+interface Context {
+  db: NodePgDatabase;
+}
+
+interface Todo {
   userId: number;
   id: number;
   title: string;
@@ -11,7 +15,7 @@ export interface Todo {
   todoUser?: TodoUser;
 }
 
-export interface TodoUser {
+interface TodoUser {
   id: number;
   name: string;
   username?: string;
@@ -31,7 +35,7 @@ export const resolvers = {
   },
   Query: {
     getToken: async (_: any, dataObject: any, context: any) => {
-      console.log("Token in resolver:", context.token); // Debugging line
+      console.log("Token in resolver:", context.token, context.db); // Debugging line
       return "get the token";
     },
 
@@ -41,7 +45,8 @@ export const resolvers = {
         offset = 0,
         limit = 10,
         search = "",
-      }: { offset: number; limit: number; search?: string }
+      }: { offset: number; limit: number; search?: string },
+      { db }: Context
     ) => {
       let condition = [];
 
@@ -58,7 +63,7 @@ export const resolvers = {
       const whereCondition =
         condition.length > 0 ? and(...condition) : undefined;
 
-      const query = graphqlDb.select().from(Users).offset(offset).limit(limit);
+      const query = db.select().from(Users).offset(offset).limit(limit);
 
       if (whereCondition) {
         query.where(whereCondition);
@@ -66,7 +71,7 @@ export const resolvers = {
 
       const userData = await query;
 
-      const totalCountQuery = graphqlDb
+      const totalCountQuery = db
         .select({ count: sql`count(*)`.mapWith(Number) })
         .from(Users);
 
@@ -82,9 +87,9 @@ export const resolvers = {
         totalPages: Math.ceil(totalCount / limit),
       };
     },
-    getUserById: async (_: any, { id }: { id: number }) => {
+    getUserById: async (_: any, { id }: { id: number }, { db }: Context) => {
       try {
-        const [result] = await graphqlDb
+        const [result] = await db
           .select()
           .from(Users)
           .where(eq(Users.id, id))
@@ -95,17 +100,17 @@ export const resolvers = {
       }
     },
     // Book related query
-    getAllBooks: async (_: any, { limit }: { limit: number }) => {
-      const result = await graphqlDb
-        .select()
-        .from(Books)
-        .limit(limit)
-        .execute();
+    getAllBooks: async (
+      _: any,
+      { limit }: { limit: number },
+      { db }: Context
+    ) => {
+      const result = await db.select().from(Books).limit(limit).execute();
       return result;
     },
 
-    getBookById: async (_: any, { id }: { id: number }) => {
-      const [result] = await graphqlDb
+    getBookById: async (_: any, { id }: { id: number }, { db }: Context) => {
+      const [result] = await db
         .select()
         .from(Books)
         .where(eq(Books.id, id))
@@ -131,11 +136,14 @@ export const resolvers = {
       _: any,
       {
         userInput,
-      }: { userInput: { first_name: string; last_name: string; email: string } }
+      }: {
+        userInput: { first_name: string; last_name: string; email: string };
+      },
+      { db }: Context
     ) => {
       try {
         const { first_name, last_name, email } = userInput;
-        const [result] = await graphqlDb
+        const [result] = await db
           .insert(Users)
           .values({ first_name, last_name, email })
           .returning();
@@ -145,9 +153,9 @@ export const resolvers = {
         console.log(error);
       }
     },
-    deleteUser: async (_: any, { id }: { id: number }) => {
+    deleteUser: async (_: any, { id }: { id: number }, { db }: Context) => {
       try {
-        await graphqlDb.delete(Users).where(eq(Users.id, id)).execute();
+        await db.delete(Users).where(eq(Users.id, id)).execute();
         return true;
       } catch (err) {
         console.log(err);
@@ -165,11 +173,12 @@ export const resolvers = {
           last_name?: string;
           email?: string;
         };
-      }
+      },
+      { db }: Context
     ) => {
       try {
         const { id, first_name, last_name, email } = updateInput;
-        const result = await graphqlDb
+        const result = await db
           .update(Users)
           .set({
             ...(first_name && { first_name }),
@@ -190,18 +199,19 @@ export const resolvers = {
       _: any,
       {
         bookInput,
-      }: { bookInput: { author_name: string; title: string; year: string } }
+      }: { bookInput: { author_name: string; title: string; year: string } },
+      { db }: Context
     ) => {
       const { author_name, title, year } = bookInput;
-      const [result] = await graphqlDb
+      const [result] = await db
         .insert(Books)
         .values({ author_name, title, year })
         .returning();
 
       return result;
     },
-    deleteBook: async (_: any, { id }: { id: number }) => {
-      await graphqlDb.delete(Books).where(eq(Books.id, id)).execute();
+    deleteBook: async (_: any, { id }: { id: number }, { db }: Context) => {
+      await db.delete(Books).where(eq(Books.id, id)).execute();
       return true;
     },
     updateBook: async (
@@ -215,10 +225,11 @@ export const resolvers = {
           title: string;
           year: string;
         };
-      }
+      },
+      { db }: Context
     ) => {
       const { id, author_name, title, year } = updateInput;
-      const [result] = await graphqlDb
+      const [result] = await db
         .update(Books)
         .set({
           ...(author_name && { author_name }),

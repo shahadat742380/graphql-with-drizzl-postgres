@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { ApolloServer } from "@apollo/server";
+import { ApolloServer, BaseContext } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
 
@@ -20,7 +20,7 @@ const init = async () => {
     // Initialize Drizzle-ORM with schema
     const graphqlDb = drizzle(db, { schema: dbSchema });
 
-    const server = new ApolloServer({
+    const server = new ApolloServer<BaseContext>({
       typeDefs,
       resolvers,
     });
