@@ -1,8 +1,7 @@
 import axios from "axios";
 import { graphqlDb } from "../db/index.js";
 import { Users, Books } from "../db/schemas/index.js";
-import { eq, ilike } from "drizzle-orm";
-
+import { and, eq, ilike, or, sql } from "drizzle-orm";
 
 export interface Todo {
   userId: number;
@@ -23,8 +22,12 @@ export interface TodoUser {
 
 export const resolvers = {
   getAllTodo: {
-    toUser: async (todo: Todo) => 
-      (await axios.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`)).data,
+    toUser: async (todo: Todo) =>
+      (
+        await axios.get(
+          `https://jsonplaceholder.typicode.com/users/${todo.userId}`
+        )
+      ).data,
   },
   Query: {
     getToken: async (_: any, dataObject: any, context: any) => {
@@ -32,23 +35,52 @@ export const resolvers = {
       return "get the token";
     },
 
-    getAllUsers: async (_: any, { offset, limit, first_name }: { offset: number; limit: number; first_name?: string }) => {
-      try {
-        const query = graphqlDb
-          .select()
-          .from(Users)
-          .offset(offset)
-          .limit(limit);
-        
-        if (first_name) {
-          query.where(ilike(Users.first_name, `%${first_name}%`));
-        }
-        
-        const results = await query.execute();
-        return results;
-      } catch (err) {
-        console.log(err);
+    getAllUsers: async (
+      _: any,
+      {
+        offset = 0,
+        limit = 10,
+        search = "",
+      }: { offset: number; limit: number; search?: string }
+    ) => {
+      let condition = [];
+
+      if (search) {
+        condition.push(
+          or(
+            ilike(Users.first_name, `%${search}%`),
+            ilike(Users.last_name, `%${search}%`),
+            ilike(Users.email, `%${search}%`)
+          )
+        );
       }
+
+      const whereCondition =
+        condition.length > 0 ? and(...condition) : undefined;
+
+      const query = graphqlDb.select().from(Users).offset(offset).limit(limit);
+
+      if (whereCondition) {
+        query.where(whereCondition);
+      }
+
+      const userData = await query;
+
+      const totalCountQuery = graphqlDb
+        .select({ count: sql`count(*)`.mapWith(Number) })
+        .from(Users);
+
+      if (whereCondition) {
+        totalCountQuery.where(whereCondition);
+      }
+
+      const totalCount = await totalCountQuery.then((res) => res[0].count);
+
+      return {
+        userData,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      };
     },
     getUserById: async (_: any, { id }: { id: number }) => {
       try {
@@ -71,6 +103,7 @@ export const resolvers = {
         .execute();
       return result;
     },
+
     getBookById: async (_: any, { id }: { id: number }) => {
       const [result] = await graphqlDb
         .select()
@@ -88,9 +121,9 @@ export const resolvers = {
     getAllTodoUser: async () =>
       (await axios.get("https://jsonplaceholder.typicode.com/users")).data,
 
-    getTodoUserById: async (_: any, {id} : {id:string}) =>
-      (await axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)).data,
-
+    getTodoUserById: async (_: any, { id }: { id: string }) =>
+      (await axios.get(`https://jsonplaceholder.typicode.com/users/${id}`))
+        .data,
   },
 
   Mutation: {

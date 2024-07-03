@@ -9,7 +9,7 @@ export const typeDefs = `#graphql
   input UserInput {
     first_name: String!
     last_name: String!
-    email: String!
+    email: String! 
   }
 
   input UpdateUserInput {
@@ -56,8 +56,14 @@ export const typeDefs = `#graphql
     website: String
   }
 
+  type UserList {
+  userData: [User]!
+  totalCount: Int
+  totalPages: Int
+}
+
   type Query {
-    getAllUsers(offset:Int limit: Int first_name: String): [User]!
+    getAllUsers(offset:Int limit: Int search: String): UserList
     getUserById(id: Int!): User
     getAllBooks(limit: Int): [Book]
     getBookById(id: Int!): Book
