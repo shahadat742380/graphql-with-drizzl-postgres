@@ -15,6 +15,13 @@
       "when": 1719470986967,
       "tag": "0001_breezy_iron_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720005604949,
+      "tag": "0002_violet_vivisector",
+      "breakpoints": true
     }
   ]
 }

@@ -33,6 +33,7 @@ export const resolvers = {
         )
       ).data,
   },
+
   Query: {
     getToken: async (_: any, dataObject: any, context: any) => {
       console.log("Token in resolver:", context.token, context.db); // Debugging line
@@ -235,6 +236,7 @@ export const resolvers = {
           ...(author_name && { author_name }),
           ...(title && { title }),
           ...(year && { year }),
+          updated_at: sql`NOW()`,
         })
         .where(eq(Books.id, id))
         .returning();

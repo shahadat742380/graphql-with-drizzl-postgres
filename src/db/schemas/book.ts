@@ -1,11 +1,10 @@
-import {  serial, text, pgTable } from 'drizzle-orm/pg-core';
-import { sql } from "drizzle-orm";
+import {  serial, text, pgTable, timestamp  } from 'drizzle-orm/pg-core';
 
 export const Books = pgTable('books', {
   id: serial('id').primaryKey(),
   author_name: text("author_name").default(""),
   title: text("title").default(""),
   year: text("year").default(""),
-  createdAt: text("created_at").default(sql`CURRENT_TIME`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIME`),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
