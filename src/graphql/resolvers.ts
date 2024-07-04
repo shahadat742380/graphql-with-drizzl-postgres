@@ -36,8 +36,8 @@ export const resolvers = {
 
   Query: {
     getToken: async (_: any, dataObject: any, context: any) => {
-      console.log("Token in resolver:", context.token, context.db); // Debugging line
-      return "get the token";
+      console.log("Token in resolver:", context.token); // Debugging line
+      return context.token;
     },
 
     getAllUsers: async (

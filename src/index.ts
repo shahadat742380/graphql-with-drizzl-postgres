@@ -7,7 +7,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import * as dbSchema from "./db/schemas/index.js";
 import db from "./db/index.js";
 
-
+// import graphql typedef and resolver
 import { typeDefs } from "./graphql/typeDefs.js";
 import { resolvers } from "./graphql/resolvers.js";
 
@@ -39,8 +39,6 @@ const init = async () => {
   } catch (error) {
     console.error("Failed to connect to the database", error);
   }
-
-  
 };
 
 init();
