@@ -2,7 +2,6 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
-
 // Import schema
 import * as dbSchema from "./db/schemas/index.js";
 import db from "./db/index.js";

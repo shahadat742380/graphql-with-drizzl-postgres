@@ -2,7 +2,7 @@ import { Client } from "pg";
 
 const db = new Client({
   connectionString:
-    "postgresql://postgres:742380@localhost:5432/drizzle-with-postgres?schema=public",
+    "postgres://default:xaTMEqk4uD2L@ep-misty-meadow-a4o5rf4p.us-east-1.aws.neon.tech:5432/graphql-with-drizzle-postgres?sslmode=require",
 });
 
 export default db;

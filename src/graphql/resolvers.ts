@@ -1,10 +1,15 @@
 import axios from "axios";
 import { Users, Books } from "../db/schemas/index.js";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres/driver.js";
+import { GraphQLDate } from "./scalar/date.js";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import config from "../config/config.js";
+import { verifyToken } from "../utils/verifyToken.js";
 
 interface Context {
   db: NodePgDatabase;
+  token: string;
 }
 
 interface Todo {
@@ -25,6 +30,7 @@ interface TodoUser {
 }
 
 export const resolvers = {
+  Date: GraphQLDate,
   getAllTodo: {
     toUser: async (todo: Todo) =>
       (
@@ -88,6 +94,7 @@ export const resolvers = {
         totalPages: Math.ceil(totalCount / limit),
       };
     },
+
     getUserById: async (_: any, { id }: { id: number }, { db }: Context) => {
       try {
         const [result] = await db
@@ -100,13 +107,23 @@ export const resolvers = {
         console.log(err);
       }
     },
+
     // Book related query
     getAllBooks: async (
       _: any,
       { limit }: { limit: number },
       { db }: Context
     ) => {
-      const result = await db.select().from(Books).limit(limit).execute();
+      console.log("hit the url");
+
+      const result = await db
+        .select()
+        .from(Books)
+        .leftJoin(Users, eq(Books.author_name, Users.id))
+        .orderBy(desc(Books.id))
+        .limit(limit)
+        .execute();
+
       return result;
     },
 
@@ -114,13 +131,32 @@ export const resolvers = {
       const [result] = await db
         .select()
         .from(Books)
-        .where(eq(Books.id, id))
+        .where(ne(Books.id, id))
         .execute();
       return result;
     },
 
-    // Todo
+    // get login user
+    getCurrentLoggedInUser: async (
+      _: any,
+      args: any,
+      { db, token }: Context
+    ) => {
+      if (token) {
+        const decodedToken = verifyToken(token) as JwtPayload;
 
+        const email = decodedToken.email;
+        const [User] = await db
+          .select()
+          .from(Users)
+          .where(eq(Users.email, email))
+          .execute();
+        return User;
+      }
+      return { message: "Authorization fail", status: 400 };
+    },
+
+    // Todo
     getTodo: async () =>
       (await axios.get("https://jsonplaceholder.typicode.com/todos")).data,
 
@@ -138,15 +174,20 @@ export const resolvers = {
       {
         userInput,
       }: {
-        userInput: { first_name: string; last_name: string; email: string };
+        userInput: {
+          first_name: string;
+          last_name: string;
+          email: string;
+          password: string;
+        };
       },
       { db }: Context
     ) => {
       try {
-        const { first_name, last_name, email } = userInput;
+        const { first_name, last_name, email, password } = userInput;
         const [result] = await db
           .insert(Users)
-          .values({ first_name, last_name, email })
+          .values({ first_name, last_name, email, password })
           .returning();
         console.log([result]);
         return result;
@@ -194,6 +235,36 @@ export const resolvers = {
         console.log(err);
       }
     },
+    async login(
+      _: any,
+      { email, password }: { email: string; password: string },
+      { db }: Context
+    ) {
+      const [User] = await db
+        .select()
+        .from(Users)
+        .where(eq(Users.email, email))
+        .execute();
+
+      if (!User) {
+        throw new Error("User not found");
+      }
+
+      if (User.password !== password) {
+        throw new Error("Password is incorrect");
+      }
+
+      const jwtSecret = config.jwtSecret;
+      console.log(jwtSecret);
+
+      const token = jwt.sign(
+        { userId: User.id, email: User.email },
+        jwtSecret as string,
+        { expiresIn: "7d" }
+      );
+
+      return { userId: User.id, token };
+    },
 
     // Book related mutation
     createBook: async (
@@ -209,8 +280,11 @@ export const resolvers = {
         .values({ author_name, title, year })
         .returning();
 
+      console.log(result);
+
       return result;
     },
+
     deleteBook: async (_: any, { id }: { id: number }, { db }: Context) => {
       await db.delete(Books).where(eq(Books.id, id)).execute();
       return true;
@@ -236,7 +310,6 @@ export const resolvers = {
           ...(author_name && { author_name }),
           ...(title && { title }),
           ...(year && { year }),
-          updated_at: sql`NOW()`,
         })
         .where(eq(Books.id, id))
         .returning();
