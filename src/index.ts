@@ -28,7 +28,7 @@ const init = async () => {
       listen: { port: PORT },
       context: async ({ req, res }) => {
         // Get the user token from the headers.
-        const token = req.headers.authorization || 'token';
+        const token = req.headers.authorization;
 
         // Add the token and db to the context
         return { db: graphqlDb, token };

@@ -41,11 +41,6 @@ export const resolvers = {
   },
 
   Query: {
-    getToken: async (_: any, dataObject: any, context: any) => {
-      console.log("Token in resolver:", context.token); // Debugging line
-      return context.token;
-    },
-
     getAllUsers: async (
       _: any,
       {
@@ -114,12 +109,9 @@ export const resolvers = {
       { limit }: { limit: number },
       { db }: Context
     ) => {
-      console.log("hit the url");
-
       const result = await db
         .select()
         .from(Books)
-        .leftJoin(Users, eq(Books.author_name, Users.id))
         .orderBy(desc(Books.id))
         .limit(limit)
         .execute();
@@ -157,8 +149,23 @@ export const resolvers = {
     },
 
     // Todo
-    getTodo: async () =>
-      (await axios.get("https://jsonplaceholder.typicode.com/todos")).data,
+    getTodo: async (_: any, args: any, { token }: Context) => {
+      if (!token) {
+        throw new Error("Unauthorized");
+      }
+
+      try {
+        verifyToken(token);
+      } catch (err) {
+        throw new Error("Invalid token");
+      }
+
+      const result = await axios.get(
+        "https://jsonplaceholder.typicode.com/todos"
+      );
+
+      return result.data;
+    },
 
     getAllTodoUser: async () =>
       (await axios.get("https://jsonplaceholder.typicode.com/users")).data,

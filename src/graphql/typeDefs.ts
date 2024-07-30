@@ -27,6 +27,7 @@ export const typeDefs = `#graphql
 
   type Book{
     id: Int
+    author_name: String!
     title: String!
     year: String!
     created_at: Date!
@@ -84,8 +85,6 @@ export const typeDefs = `#graphql
     getTodo: [getAllTodo]
     getAllTodoUser: [TodoUser]
     getTodoUserById(id: Int!): TodoUser
-
-    getToken: String!
   }
 
   type Mutation {
